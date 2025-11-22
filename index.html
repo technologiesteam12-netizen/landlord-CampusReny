@@ -34,6 +34,68 @@ body{margin:0;font-family:Inter,Arial,system-ui;background:var(--bg);color:#222}
 .list-item{padding:10px;border-radius:8px;border:1px solid #eee;margin-bottom:8px;background:#fff}
 .notice{background:#FFF4E5;padding:10px;border-radius:8px;border:1px solid #f0d9b5}
 .badge{background:#e6f7ff;color:var(--brand);padding:6px 10px;border-radius:999px}
+/* ===== Mobile Phones (Small) ===== */
+@media only screen and (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+
+  .container {
+    padding: 15px;
+    max-width: 100%;
+  }
+
+  h1, h2, h3 {
+    font-size: 1.2rem;
+  }
+
+  input, button {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+}
+
+/* ===== Phones (Regular Size) ===== */
+@media only screen and (max-width: 768px) {
+  .container {
+    max-width: 95%;
+  }
+
+  h1, h2, h3 {
+    font-size: 1.4rem;
+  }
+
+  button {
+    padding: 12px;
+    font-size: 1rem;
+  }
+}
+
+/* ===== Tablets ===== */
+@media only screen and (max-width: 1024px) {
+  .container {
+    max-width: 80%;
+  }
+
+  h1, h2, h3 {
+    font-size: 1.6rem;
+  }
+}
+
+/* ===== Laptops & Small Desktops ===== */
+@media only screen and (max-width: 1366px) {
+  .container {
+    max-width: 60%;
+  }
+}
+
+/* ===== Large Screens ===== */
+@media only screen and (min-width: 1367px) {
+  .container {
+    max-width: 40%;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -414,4 +476,3 @@ document.getElementById("googleLoginBtn").addEventListener("click", async () => 
 </script>
 </body>
 </html>
-
