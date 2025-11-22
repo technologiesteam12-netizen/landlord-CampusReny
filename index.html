@@ -401,17 +401,6 @@ window.deleteProp = async function(id){
   await loadPropertiesForUser();
 };
 
-document.getElementById("googleLoginBtn").addEventListener("click", async () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  try {
-    await auth.signInWithPopup(provider);
-    alert("Logged in with Google!");
-    hideModal("authModal");
-  } catch (err) {
-    console.error(err);
-    alert("Google Login Failed: " + err.message);
-  }
-});
 
 </script>
 </body>
