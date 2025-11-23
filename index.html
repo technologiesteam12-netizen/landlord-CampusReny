@@ -9,45 +9,51 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- Firebase (compat SDK for simplicity) -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-:root{ --brand:#92adcc; --bg:#F5F5F5; --muted:#7d8590; --card-shadow:0 8px 20px rgba(20,20,20,0.06) }
-*{box-sizing:border-box}
-body{margin:0;font-family:Inter,Arial,system-ui;background:var(--bg);color:#222}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#fff;border-bottom:1px solid #e0e0e0}
-.brand{display:flex;align-items:center;gap:10px}
-.brand img{height:40px}
-.btn{background:var(--brand);color:#fff;padding:8px 12px;border-radius:8px;border:0;cursor:pointer}
-.btn.ghost{background:transparent;border:1px solid #ddd;color:#222}
-.container{max-width:1000px;margin:18px auto;padding:12px}
-.card{background:#fff;padding:12px;border-radius:12px;box-shadow:var(--card-shadow);margin-bottom:12px}
-.grid{display:grid;grid-template-columns:1fr 360px;gap:12px}
-.form-row{display:flex;gap:8px;flex-wrap:wrap}
-.input, textarea, select{width:100%;padding:8px;border-radius:8px;border:1px solid #ddd}
-.small{font-size:13px;color:var(--muted)}
-.list-item{padding:10px;border-radius:8px;border:1px solid #eee;margin-bottom:8px;background:#fff'}
-.notice{background:#FFF4E5;padding:10px;border-radius:8px;border:1px solid #f0d9b5}
-.badge{background:#e6f7ff;color:var(--brand);padding:6px 10px;border-radius:999px}
-.messages-box{height:260px;overflow-y:auto;padding:8px;background:#f6f8fa;border-radius:8px;border:1px solid #eee}
-.msg-tenant{background:#e8f0ff;padding:6px 8px;border-radius:8px;display:inline-block}
-.msg-landlord{background:#e6ffe6;padding:6px 8px;border-radius:8px;display:inline-block}
-.small-muted{font-size:12px;color:#999}
-.prop-thumb{width:120px;height:80px;object-fit:cover;border-radius:6px}
+  :root{ --brand:#92adcc; --bg:#F5F5F5; --muted:#7d8590; --card-shadow:0 8px 20px rgba(20,20,20,0.06) }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Inter, Arial, system-ui; background: var(--bg); color: #222; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #fff; border-bottom: 1px solid #e0e0e0; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand img { height: 40px; }
+  .btn { background: var(--brand); color: #fff; padding: 8px 12px; border-radius: 8px; border: 0; cursor: pointer; transition: background 0.2s; }
+  .btn:hover { background: #7a9ac3; }
+  .btn.ghost { background: transparent; border: 1px solid #ddd; color: #222; }
+  .btn.ghost:hover { background: #f0f0f0; }
+  .container { max-width: 1000px; margin: 18px auto; padding: 12px; }
+  .card { background: #fff; padding: 16px; border-radius: 12px; box-shadow: var(--card-shadow); margin-bottom: 12px; }
+  .grid { display: grid; grid-template-columns: 1fr 360px; gap: 12px; }
+  @media (max-width: 768px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+  .form-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .input, textarea, select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; transition: border-color 0.2s; }
+  .input:focus, textarea:focus, select:focus { border-color: var(--brand); outline: none; }
+  .small { font-size: 13px; color: var(--muted); }
+  .list-item { padding: 12px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 8px; background: #fff; display: flex; align-items: center; justify-content: space-between; }
+  .notice { background: #FFF4E5; padding: 10px; border-radius: 8px; border: 1px solid #f0d9b5; }
+  .badge { background: #e6f7ff; color: #3b82f6; padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 500; }
+  .messages-box { height: 300px; overflow-y: auto; padding: 10px; background: #f6f8fa; border-radius: 8px; border: 1px solid #eee; }
+  .msg-tenant { background: #e8f0ff; color: #1e40af; padding: 8px 12px; border-radius: 12px 12px 12px 4px; display: inline-block; max-width: 90%; }
+  .msg-landlord { background: #dcfce7; color: #166534; padding: 8px 12px; border-radius: 12px 12px 4px 12px; display: inline-block; max-width: 90%; }
+  .small-muted { font-size: 12px; color: #999; }
+  .prop-thumb { width: 100px; height: 80px; object-fit: cover; border-radius: 6px; }
+
+  /* Removed Custom Alert Modal styles */
 </style>
 </head>
 <body>
+
 <header class="topbar">
   <div class="brand">
     <img src="https://i.ibb.co/1fk4cgjr/Chat-GPT-Image-Nov-21-2025-05-20-42-PM.png" alt="logo">
     <h2 style="margin:0;color:var(--brand)">CampusRent — Landlord</h2>
   </div>
-  <div>
-    <button id="btnLogout" class="btn" style="display:none">Logout</button>
+  <div id="authStatus">
+    <button id="btnLogout" class="btn bg-red-500 hover:bg-red-600" style="display:none">Logout</button>
     <button id="btnShowLogin" class="btn ghost">Login / Register</button>
   </div>
 </header>
@@ -63,18 +69,18 @@ body{margin:0;font-family:Inter,Arial,system-ui;background:var(--bg);color:#222}
           <input id="reg_email" class="input" placeholder="Email">
         </div>
         <div class="form-row" style="margin-top:8px">
-          <input id="reg_password" class="input" placeholder="Password">
+          <input id="reg_password" type="password" class="input" placeholder="Password">
           <button id="btnRegister" class="btn">Register</button>
         </div>
-        <p class="small">Or sign in with Google</p>
-        <button id="btnGoogle" class="btn ghost">Sign in with Google</button>
+        <p class="small mt-3">Or sign in with Google</p>
+        <button id="btnGoogle" class="btn ghost w-full mt-2">Sign in with Google</button>
       </div>
 
       <div id="loginForm" style="display:none;margin-top:12px">
         <p class="small">Login</p>
         <div class="form-row">
           <input id="login_email" class="input" placeholder="Email">
-          <input id="login_password" class="input" placeholder="Password">
+          <input id="login_password" type="password" class="input" placeholder="Password">
         </div>
         <div style="margin-top:8px">
           <button id="btnLogin" class="btn">Login</button>
@@ -84,51 +90,59 @@ body{margin:0;font-family:Inter,Arial,system-ui;background:var(--bg);color:#222}
   </div>
 
   <div id="dashboard" class="card" style="display:none">
-    <h3>Your Properties <span class="small">(<span id="propCount">0</span>)</span></h3>
+    <h3 class="flex justify-between items-center">
+      <span>Your Properties <span class="small">(<span id="propCount">0</span>)</span></span>
+      <span id="userIdDisplay" class="small-muted text-xs bg-gray-100 p-2 rounded"></span>
+    </h3>
+    
+    <!-- New status message container for non-blocking alerts -->
+    <div id="statusMessageContainer" class="mt-4"></div>
 
     <div class="grid" style="margin-top:8px">
       <div>
+        <!-- Property Management Card -->
         <div class="card">
           <h4>Add / Edit Property</h4>
           <div style="margin-top:8px">
             <input id="prop_title" class="input" placeholder="Property title (e.g. 2BR near JKUAT)">
             <div style="display:flex;gap:8px;margin-top:8px">
-              <input id="prop_price" class="input" placeholder="Monthly rent (KSh)">
-              <input id="prop_deposit" class="input" placeholder="Deposit (KSh)">
+              <input id="prop_price" type="number" class="input" placeholder="Monthly rent (KSh)">
+              <input id="prop_deposit" type="number" class="input" placeholder="Deposit (KSh)">
             </div>
-            <textarea id="prop_address" class="input" placeholder="Address (full)"></textarea>
-            <input id="prop_university" class="input" placeholder="Nearby university / campus (optional)">
+            <textarea id="prop_address" class="input" placeholder="Address (full)" rows="2" style="margin-top:8px"></textarea>
+            <input id="prop_university" class="input" placeholder="Nearby university / campus (optional)" style="margin-top:8px">
             <div style="margin-top:8px">
-              <label class="small">Amenities (comma separated)</label>
+              <label class="small block mb-1">Amenities (comma separated)</label>
               <input id="prop_amenities" class="input" placeholder="water,electricity,wifi">
             </div>
 
             <div style="margin-top:8px">
-              <label class="small">Photos (max 6)</label>
+              <label class="small block mb-1">Photos (max 6)</label>
               <input id="prop_photos" type="file" multiple accept="image/*">
               <div id="photosPreview" style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"></div>
             </div>
 
             <div style="margin-top:8px">
-              <label class="small">Location (press Geocode to fetch lat/lng from address)</label>
+              <label class="small block mb-1">Location (press Geocode to fetch lat/lng from address)</label>
               <div style="display:flex;gap:8px">
                 <input id="prop_lat" class="input" placeholder="lat">
                 <input id="prop_lng" class="input" placeholder="lng">
-                <button id="btnGeocode" class="btn">Geocode</button>
+                <button id="btnGeocode" class="btn flex-shrink-0">Geocode</button>
               </div>
             </div>
 
-            <div style="margin-top:10px;display:flex;gap:8px">
-              <button id="btnSaveProperty" class="btn">Save Property</button>
-              <button id="btnClear" class="btn ghost">Clear</button>
+            <div style="margin-top:15px;display:flex;gap:8px">
+              <button id="btnSaveProperty" class="btn flex-1">Save Property</button>
+              <button id="btnClear" class="btn ghost flex-1">Clear Form</button>
             </div>
-            <div class="small" style="margin-top:8px;color:#666">Properties you add will appear on the tenant site after publishing.</div>
+            <div class="small" style="margin-top:8px;color:#666">Properties you add will appear on the tenant site immediately.</div>
           </div>
         </div>
 
         <div id="myPropsList" style="margin-top:12px"></div>
       </div>
 
+      <!-- Right Column -->
       <div>
         <div class="card">
           <h4>Map preview</h4>
@@ -140,11 +154,11 @@ body{margin:0;font-family:Inter,Arial,system-ui;background:var(--bg);color:#222}
           <div id="inquiriesList" style="margin-top:8px"></div>
 
           <div id="chatArea" style="display:none;margin-top:12px">
-            <div id="chatHeader" class="small-muted" style="margin-bottom:6px"></div>
+            <div id="chatHeader" class="small-muted font-bold" style="margin-bottom:6px"></div>
             <div id="messagesBox" class="messages-box"></div>
             <div style="display:flex;gap:8px;margin-top:8px">
               <input id="chatInput" class="input" placeholder="Type a reply...">
-              <button id="sendMsgBtn" class="btn">Send</button>
+              <button id="sendMsgBtn" class="btn flex-shrink-0">Send</button>
             </div>
             <div style="margin-top:6px" class="small-muted">Messages are realtime.</div>
           </div>
@@ -152,408 +166,566 @@ body{margin:0;font-family:Inter,Arial,system-ui;background:var(--bg);color:#222}
 
         <div class="card" style="margin-top:12px">
           <h4>Notes</h4>
-          <div class="notice small">This page is landlord-only. Tenant inquiries should be created by the tenant app/site under the `inquiries` collection (with `landlordId` set to this landlord's UID). Chat messages are stored under `chats/{inquiryId}/messages`.</div>
+          <div class="notice small">
+            <p>This Landlord portal uses the Canvas-mandated public collections for properties and inquiries (e.g., <code>/artifacts/{appId}/public/data/properties</code>) to ensure the Tenant app can access the listings.</p>
+            <p>All database access is secured by the Canvas authentication token.</p>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- FIREBASE CONFIG: corrected storageBucket -->
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyBNI_Pb_54NMvte-m6oYnwlpTikaqmHxqQ",
-  authDomain: "campus-rent-7d1ef.firebaseapp.com",
-  projectId: "campus-rent-7d1ef",
-  storageBucket: "campus-rent-7d1ef.appspot.com",
-  messagingSenderId: "849345981750",
-  appId: "1:849345981750:web:a787bab1e485aa631b5797",
-  measurementId: "G-889BD0W9PX"
-};
-</script>
 
-<script>
-/* Landlord-only working app */
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-const storage = firebase.storage();
+<script type="module">
+  // Modular Firebase Imports
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  import { getFirestore, collection, query, where, orderBy, getDocs, doc, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+  import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+  
+  // Set Firestore Log Level for debugging
+  setLogLevel('debug');
 
-const $ = id => document.getElementById(id);
+  // --- ENVIRONMENT VARIABLES AND INITIALIZATION ---
+  const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+  const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+  
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+  const storage = getStorage(app);
 
-// auth UI
-const btnShowLogin = $('btnShowLogin');
-const btnLogout = $('btnLogout');
-const btnRegister = $('btnRegister');
-const btnLogin = $('btnLogin');
-const btnGoogle = $('btnGoogle');
+  const $ = id => document.getElementById(id);
 
-const registerForm = $('registerForm');
-const loginForm = $('loginForm');
+  // --- UI Elements ---
+  const btnShowLogin = $('btnShowLogin');
+  const btnLogout = $('btnLogout');
+  const btnRegister = $('btnRegister');
+  const btnLogin = $('btnLogin');
+  const btnGoogle = $('btnGoogle');
+  const registerForm = $('registerForm');
+  const loginForm = $('loginForm');
+  const dashboard = $('dashboard');
+  const propCount = $('propCount');
+  const myPropsList = $('myPropsList');
+  const userIdDisplay = $('userIdDisplay');
 
-const dashboard = $('dashboard');
-const propCount = $('propCount');
-const myPropsList = $('myPropsList');
+  const prop_title = $('prop_title');
+  const prop_price = $('prop_price');
+  const prop_deposit = $('prop_deposit');
+  const prop_address = $('prop_address');
+  const prop_university = $('prop_university');
+  const prop_amenities = $('prop_amenities');
+  const prop_photos = $('prop_photos');
+  const photosPreview = $('photosPreview');
+  const prop_lat = $('prop_lat'); const prop_lng = $('prop_lng');
+  const btnGeocode = $('btnGeocode');
+  const btnSaveProperty = $('btnSaveProperty');
+  const btnClear = $('btnClear');
 
-const prop_title = $('prop_title');
-const prop_price = $('prop_price');
-const prop_deposit = $('prop_deposit');
-const prop_address = $('prop_address');
-const prop_university = $('prop_university');
-const prop_amenities = $('prop_amenities');
-const prop_photos = $('prop_photos');
-const photosPreview = $('photosPreview');
-const prop_lat = $('prop_lat'); const prop_lng = $('prop_lng');
-const btnGeocode = $('btnGeocode');
-const btnSaveProperty = $('btnSaveProperty');
-const btnClear = $('btnClear');
+  const inquiriesList = $('inquiriesList');
+  const chatArea = $('chatArea');
+  const chatHeader = $('chatHeader');
+  const messagesBox = $('messagesBox');
+  const chatInput = $('chatInput');
+  const sendMsgBtn = $('sendMsgBtn');
+  
+  // New element for non-blocking status messages
+  const statusMessageContainer = $('statusMessageContainer');
 
-const inquiriesList = $('inquiriesList');
-const chatArea = $('chatArea');
-const chatHeader = $('chatHeader');
-const messagesBox = $('messagesBox');
-const chatInput = $('chatInput');
-const sendMsgBtn = $('sendMsgBtn');
-
-let currentUser = null;
-let map = null;
-let markers = [];
-let currentChatInquiryId = null;
-let currentChatUnsubscribe = null;
-
-// map
-function initMap() {
-  if (map) return;
-  map = L.map('map').setView([-1.286389, 36.817223], 13);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
-}
-initMap();
-
-/* Toggle login/register UI */
-btnShowLogin.addEventListener('click', () => {
-  if (loginForm.style.display === 'none') {
-    loginForm.style.display = 'block';
-    registerForm.style.display = 'none';
-  } else {
-    loginForm.style.display = 'none';
-    registerForm.style.display = 'block';
+  let currentUser = null;
+  let map = null;
+  let currentChatInquiryId = null;
+  let currentChatUnsubscribe = null;
+  let inquiriesUnsubscribe = null;
+  let isAuthReady = false;
+  
+  // --- STATUS MESSAGE FUNCTION (replaces customAlert modal) ---
+  // isError = false for success/status, true for error
+  function customAlert(message, isError = true) {
+    console.log(isError ? "ERROR: " + message : "STATUS: " + message);
+    const className = isError 
+      ? 'bg-red-100 text-red-800 border-red-300' 
+      : 'bg-green-100 text-green-800 border-green-300';
+    
+    statusMessageContainer.innerHTML = `<div class="p-2 rounded border text-sm font-medium ${className}">${message}</div>`;
+    // Clear after 4 seconds
+    setTimeout(() => {
+      statusMessageContainer.innerHTML = '';
+    }, 4000);
   }
-});
 
-/* Google sign-in */
-btnGoogle.addEventListener('click', async () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  try {
-    const res = await auth.signInWithPopup(provider);
-    await createProfileIfMissing(res.user);
-  } catch(e){ alert('Google sign-in failed: ' + e.message); }
-});
+  // --- FIREBASE PATH HELPERS (Canvas Security Mandate) ---
+  const PUBLIC_BASE = `artifacts/${appId}/public/data`;
+  const getPropertiesCollectionRef = () => collection(db, `${PUBLIC_BASE}/properties`);
+  // Note: We are using a public path for inquiries and chats because they involve two users (Landlord and Tenant)
+  // and need to be accessed by both via their respective apps.
+  const getInquiriesCollectionRef = () => collection(db, `${PUBLIC_BASE}/inquiries`);
+  const getChatMessagesCollectionRef = (inquiryId) => collection(db, `${PUBLIC_BASE}/inquiries/${inquiryId}/messages`);
 
-/* Email register */
-btnRegister.addEventListener('click', async () => {
-  const name = $('reg_name').value.trim();
-  const email = $('reg_email').value.trim();
-  const pass = $('reg_password').value;
-  if(!email||!pass) return alert('Email and password required');
-  try {
-    const cred = await auth.createUserWithEmailAndPassword(email, pass);
-    await cred.user.updateProfile({ displayName: name || '' });
-    await createProfileIfMissing(cred.user);
-  } catch(e){ alert('Register failed: ' + e.message); }
-});
-
-/* Email login */
-btnLogin.addEventListener('click', async () => {
-  const email = $('login_email').value.trim();
-  const pass = $('login_password').value;
-  try{
-    await auth.signInWithEmailAndPassword(email, pass);
-  }catch(e){ alert('Login failed: ' + e.message); }
-});
-
-btnLogout.addEventListener('click', ()=> auth.signOut());
-
-auth.onAuthStateChanged(async user => {
-  currentUser = user;
-  if(user){
-    btnLogout.style.display = 'inline-block';
-    btnShowLogin.style.display = 'none';
-    dashboard.style.display = 'block';
-    $('authArea').style.display = 'none';
-    await loadPropertiesForUser();
-    subscribeInquiriesForLandlord();
-  } else {
-    btnLogout.style.display = 'none';
-    btnShowLogin.style.display = 'inline-block';
-    dashboard.style.display = 'none';
-    $('authArea').style.display = 'block';
-    if (currentChatUnsubscribe) { currentChatUnsubscribe(); currentChatUnsubscribe = null; }
-    inquiriesList.innerHTML = '';
-    chatArea.style.display = 'none';
+  // --- MAP INITIATION ---
+  function initMap() {
+    if (map) return;
+    map = L.map('map').setView([-1.286389, 36.817223], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
   }
-});
+  initMap();
 
-async function createProfileIfMissing(user){
-  if(!user) return;
-  const ref = db.collection('landlords').doc(user.uid);
-  const doc = await ref.get();
-  if(!doc.exists){
-    await ref.set({
-      name: user.displayName || '',
-      email: user.email || '',
-      createdAt: Date.now()
-    });
-  }
-}
+  // --- AUTHENTICATION LOGIC ---
 
-/* Photos preview */
-prop_photos.addEventListener('change', (e) => {
-  photosPreview.innerHTML = '';
-  const files = Array.from(e.target.files).slice(0,6);
-  files.forEach(file => {
-    const img = document.createElement('img');
-    img.src = URL.createObjectURL(file);
-    img.style.width = '120px'; img.style.height = '80px'; img.style.objectFit='cover'; img.style.borderRadius='6px';
-    photosPreview.appendChild(img);
+  /* Initial sign-in (Crucial for Canvas environment) */
+  onAuthStateChanged(auth, async (user) => {
+      currentUser = user;
+      if (!isAuthReady) {
+          isAuthReady = true;
+          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+              try {
+                  await signInWithCustomToken(auth, __initial_auth_token);
+              } catch (e) {
+                  console.warn("Custom token sign-in failed, proceeding anonymously:", e.message);
+                  await signInAnonymously(auth);
+              }
+          } else if (!user) {
+              await signInAnonymously(auth);
+          }
+      }
+      updateUI();
   });
-});
 
-/* Geocode (Nominatim) */
-btnGeocode.addEventListener('click', async () => {
-  const q = prop_address.value.trim();
-  if(!q) return alert('Enter address to geocode');
-  try{
-    const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(q + ' Kenya');
-    const r = await fetch(url);
-    const data = await r.json();
-    if(data && data.length){
-      prop_lat.value = data[0].lat;
-      prop_lng.value = data[0].lon;
-      map.setView([data[0].lat, data[0].lon], 15);
-      L.marker([data[0].lat, data[0].lon]).addTo(map);
-    } else alert('Location not found');
-  }catch(e){ alert('Geocode failed: ' + e.message); }
-});
-
-/* Save property with robust error handling */
-btnSaveProperty.addEventListener('click', async () => {
-  if(!currentUser) return alert('Login first');
-  const title = prop_title.value.trim();
-  const price = Number(prop_price.value)||0;
-  const deposit = Number(prop_deposit.value)||0;
-  const address = prop_address.value.trim();
-  const uni = prop_university.value.trim();
-  const amenities = (prop_amenities.value || '').split(',').map(s=>s.trim()).filter(Boolean);
-  const lat = parseFloat(prop_lat.value) || null;
-  const lng = parseFloat(prop_lng.value) || null;
-
-  if(!title || !price || !address) return alert('Title, price and address required');
-
-  try {
-    // Upload photos (if any)
-    const files = Array.from(prop_photos.files || []).slice(0,6);
-    const photoUrls = [];
-    for (let i = 0; i < files.length; i++) {
-      const f = files[i];
-      const ext = (f.name.split('.').pop() || 'jpg').replace(/[^a-z0-9]/gi,'');
-      const path = `properties/${currentUser.uid}/${Date.now()}_${i}.${ext}`;
-      const snap = await storage.ref(path).put(f);
-      const url = await snap.ref.getDownloadURL();
-      photoUrls.push(url);
+  function updateUI() {
+    const user = currentUser;
+    if(user && !user.isAnonymous){
+      btnLogout.style.display = 'inline-block';
+      btnShowLogin.style.display = 'none';
+      dashboard.style.display = 'block';
+      $('authArea').style.display = 'none';
+      userIdDisplay.textContent = `User ID: ${user.uid}`;
+      loadPropertiesForUser();
+      subscribeInquiriesForLandlord();
+    } else {
+      // Anonymous or Signed Out
+      btnLogout.style.display = 'none';
+      btnShowLogin.style.display = 'inline-block';
+      dashboard.style.display = 'none';
+      $('authArea').style.display = 'block';
+      userIdDisplay.textContent = '';
+      if (currentChatUnsubscribe) { currentChatUnsubscribe(); currentChatUnsubscribe = null; }
+      if (inquiriesUnsubscribe) { inquiriesUnsubscribe(); inquiriesUnsubscribe = null; }
+      inquiriesList.innerHTML = '';
+      myPropsList.innerHTML = '';
+      propCount.textContent = '0';
+      chatArea.style.display = 'none';
+      if(user && user.isAnonymous) {
+        // If user is anonymous, allow sign in to convert account
+        $('authArea').querySelector('h3').textContent = 'Sign in to manage properties';
+      } else if (!user) {
+        $('authArea').querySelector('h3').textContent = 'Account';
+      }
     }
-
-    const doc = {
-      ownerId: currentUser.uid,
-      title, price, deposit, address, university: uni, amenities,
-      photos: photoUrls,
-      lat, lng,
-      createdAt: Date.now(),
-      published: true
-    };
-
-    await db.collection('properties').add(doc);
-    alert('Property saved');
-    clearForm();
-    await loadPropertiesForUser();
-  } catch (e) {
-    console.error('Save property failed', e);
-    alert('Failed to save property: ' + (e.message || e));
   }
-});
+  
+  /* Create Landlord Profile on registration/first login */
+  async function createProfileIfMissing(user){
+    if(!user || user.isAnonymous) return;
+    const ref = doc(db, 'landlords', user.uid); // Landlords collection is separate
+    const docSnap = await getDoc(ref);
+    if(!docSnap.exists()){
+      await setDoc(ref, {
+        name: user.displayName || '',
+        email: user.email || '',
+        createdAt: Date.now()
+      });
+    }
+  }
 
-btnClear.addEventListener('click', clearForm);
-function clearForm(){
-  prop_title.value=''; prop_price.value=''; prop_deposit.value=''; prop_address.value=''; prop_university.value='';
-  prop_amenities.value=''; prop_photos.value=''; photosPreview.innerHTML=''; prop_lat.value=''; prop_lng.value='';
-}
+  /* Toggle login/register UI */
+  btnShowLogin.addEventListener('click', () => {
+    if (loginForm.style.display === 'none') {
+      loginForm.style.display = 'block';
+      registerForm.style.display = 'none';
+    } else {
+      loginForm.style.display = 'none';
+      registerForm.style.display = 'block';
+    }
+  });
 
-/* Load properties for this landlord */
-async function loadPropertiesForUser(){
-  if(!currentUser) return;
-  try {
-    // NOTE: This query needs a composite index in Firestore:
-    // where('ownerId','==', currentUser.uid) + orderBy('createdAt','desc')
-    const snap = await db.collection('properties')
-      .where('ownerId','==',currentUser.uid)
-      .orderBy('createdAt','desc')
-      .get();
+  /* Google sign-in */
+  btnGoogle.addEventListener('click', async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const res = await signInWithPopup(auth, provider);
+      await createProfileIfMissing(res.user);
+    } catch(e){ customAlert('Google sign-in failed: ' + e.message); }
+  });
 
-    const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    propCount.textContent = items.length;
-    myPropsList.innerHTML = items.map(p => `
-      <div class="list-item">
-        <div style="display:flex;gap:10px">
-          <img src="${(p.photos && p.photos[0]) || 'https://i.imgur.com/ko4j1pK.jpeg'}" class="prop-thumb">
-          <div style="flex:1">
-            <strong>${escapeHtml(p.title)}</strong>
-            <div class="small">${escapeHtml(p.address)}</div>
-            <div style="margin-top:6px"><span class="badge">${escapeHtml(p.university||'—')}</span> <span style="margin-left:8px">KSh ${escapeHtml(String(p.price||''))}</span></div>
-            <div style="margin-top:8px">
-              <button class="btn ghost" onclick="editProp('${p.id}')">Edit</button>
-              <button class="btn ghost" onclick="deleteProp('${p.id}')">Delete</button>
+  /* Email register */
+  btnRegister.addEventListener('click', async () => {
+    const name = $('reg_name').value.trim();
+    const email = $('reg_email').value.trim();
+    const pass = $('reg_password').value;
+    if(!email||!pass) return customAlert('Email and password required');
+    try {
+      const cred = await firebase.auth().createUserWithEmailAndPassword(email, pass); // Using compat for create
+      await cred.user.updateProfile({ displayName: name || '' });
+      await createProfileIfMissing(cred.user);
+    } catch(e){ customAlert('Register failed: ' + e.message); }
+  });
+
+  /* Email login */
+  btnLogin.addEventListener('click', async () => {
+    const email = $('login_email').value.trim();
+    const pass = $('login_password').value;
+    try{
+      await firebase.auth().signInWithEmailAndPassword(email, pass); // Using compat for login
+    }catch(e){ customAlert('Login failed: ' + e.message); }
+  });
+
+  btnLogout.addEventListener('click', ()=> signOut(auth));
+
+  // --- PROPERTY MANAGEMENT ---
+
+  /* Photos preview */
+  prop_photos.addEventListener('change', (e) => {
+    photosPreview.innerHTML = '';
+    const files = Array.from(e.target.files).slice(0,6);
+    files.forEach(file => {
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      img.className = 'prop-thumb';
+      photosPreview.appendChild(img);
+    });
+  });
+
+  /* Geocode (Nominatim) */
+  btnGeocode.addEventListener('click', async () => {
+    const q = prop_address.value.trim();
+    if(!q) return customAlert('Enter address to geocode');
+    btnGeocode.disabled = true;
+    btnGeocode.textContent = 'Searching...';
+    try{
+      const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(q + ' Kenya');
+      const r = await fetch(url);
+      const data = await r.json();
+      if(data && data.length){
+        prop_lat.value = data[0].lat;
+        prop_lng.value = data[0].lon;
+        
+        // Update map
+        if (map) {
+          map.setView([data[0].lat, data[0].lon], 15);
+          L.marker([data[0].lat, data[0].lon]).addTo(map).bindPopup(q).openPopup();
+        }
+        customAlert('Location found: ' + data[0].display_name.split(',')[0], false);
+      } else customAlert('Location not found');
+    }catch(e){ customAlert('Geocode failed: ' + e.message); }
+    finally {
+      btnGeocode.disabled = false;
+      btnGeocode.textContent = 'Geocode';
+    }
+  });
+
+  /* Save property with robust error handling */
+  btnSaveProperty.addEventListener('click', async () => {
+    if(!currentUser || currentUser.isAnonymous) return customAlert('Please sign in with a regular account to manage properties.');
+    
+    const title = prop_title.value.trim();
+    const price = Number(prop_price.value)||0;
+    const deposit = Number(prop_deposit.value)||0;
+    const address = prop_address.value.trim();
+    const uni = prop_university.value.trim();
+    const amenities = (prop_amenities.value || '').split(',').map(s=>s.trim()).filter(Boolean);
+    const lat = parseFloat(prop_lat.value) || null;
+    const lng = parseFloat(prop_lng.value) || null;
+
+    if(!title || !price || !address) return customAlert('Title, price and address required');
+
+    btnSaveProperty.disabled = true;
+    btnSaveProperty.textContent = 'Saving...';
+
+    try {
+      // 1. Upload photos (if any)
+      const files = Array.from(prop_photos.files || []).slice(0,6);
+      const photoUrls = [];
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i];
+        const ext = (f.name.split('.').pop() || 'jpg').replace(/[^a-z0-9]/gi,'');
+        // Use modular storage reference
+        const path = `properties/${currentUser.uid}/${Date.now()}_${i}.${ext}`;
+        const sRef = storageRef(storage, path);
+        
+        const snap = await uploadBytes(sRef, f);
+        const url = await getDownloadURL(snap.ref);
+        photoUrls.push(url);
+      }
+
+      // 2. Save document to the secure public properties collection
+      const docData = {
+        ownerId: currentUser.uid,
+        title, price, deposit, address, university: uni, amenities,
+        photos: photoUrls,
+        lat, lng,
+        createdAt: Date.now(),
+        published: true
+      };
+
+      await addDoc(getPropertiesCollectionRef(), docData);
+      customAlert('Property saved successfully!', false);
+      clearForm();
+      loadPropertiesForUser();
+    } catch (e) {
+      console.error('Save property failed', e);
+      customAlert('Failed to save property: ' + (e.message || e));
+    } finally {
+      btnSaveProperty.disabled = false;
+      btnSaveProperty.textContent = 'Save Property';
+    }
+  });
+
+  btnClear.addEventListener('click', clearForm);
+  function clearForm(){
+    prop_title.value=''; prop_price.value=''; prop_deposit.value=''; prop_address.value=''; prop_university.value='';
+    prop_amenities.value=''; prop_photos.value=''; photosPreview.innerHTML=''; prop_lat.value=''; prop_lng.value='';
+  }
+
+  /* Load properties for this landlord */
+  async function loadPropertiesForUser(){
+    if(!currentUser || currentUser.isAnonymous) {
+      myPropsList.innerHTML = '<div class="small-muted">Sign in to view your properties.</div>';
+      propCount.textContent = '0';
+      return;
+    }
+    
+    try {
+      // Create query using modular functions and the secure path
+      const q = query(
+        getPropertiesCollectionRef(),
+        where('ownerId','==', currentUser.uid),
+        orderBy('createdAt','desc')
+      );
+      
+      const snap = await getDocs(q);
+
+      const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      propCount.textContent = items.length;
+      myPropsList.innerHTML = items.map(p => {
+        const firstPhoto = (p.photos && p.photos[0]) || 'https://placehold.co/100x80/92adcc/ffffff?text=No+Img';
+        return `<div class="list-item">
+          <div style="display:flex;gap:10px">
+            <img src="${firstPhoto}" class="prop-thumb" onerror="this.src='https://placehold.co/100x80/92adcc/ffffff?text=Error'">
+            <div style="flex:1">
+              <strong>${escapeHtml(p.title)}</strong>
+              <div class="small">${escapeHtml(p.address)}</div>
+              <div style="margin-top:6px"><span class="badge">${escapeHtml(p.university||'—')}</span> <span style="margin-left:8px">KSh ${escapeHtml(String(p.price||''))}</span></div>
             </div>
           </div>
-        </div>
-      </div>
-    `).join('');
-    if(items.length===0) myPropsList.innerHTML = '<div class="small-muted">You have no properties yet.</div>';
-  } catch (e) {
-    console.error('Load properties failed', e);
-    myPropsList.innerHTML = '<div class="small-muted">Failed to load properties</div>';
+          <div style="display:flex;gap:8px">
+            <button class="btn ghost text-sm px-2 py-1" onclick="window.editProp('${p.id}')">Load to Form</button>
+            <button class="btn bg-red-500 hover:bg-red-600 text-sm px-2 py-1" onclick="window.deleteProp('${p.id}')">Delete</button>
+          </div>
+        </div>`;
+      }).join('');
+      if(items.length===0) myPropsList.innerHTML = '<div class="small-muted p-3">You have no properties yet.</div>';
+    } catch (e) {
+      console.error('Load properties failed', e);
+      myPropsList.innerHTML = '<div class="small-muted p-3">Failed to load properties: ' + e.message + '</div>';
+    }
   }
-}
 
-/* Edit / Delete */
-window.editProp = async function(id){
-  const doc = await db.collection('properties').doc(id).get();
-  if(!doc.exists) return alert('Not found');
-  const p = doc.data();
-  prop_title.value = p.title || '';
-  prop_price.value = p.price || '';
-  prop_deposit.value = p.deposit || '';
-  prop_address.value = p.address || '';
-  prop_university.value = p.university || '';
-  prop_amenities.value = (p.amenities || []).join(',');
-  prop_lat.value = p.lat || '';
-  prop_lng.value = p.lng || '';
-  alert('Loaded property into form. After editing press Save to create a NEW property (edit-save flow can be added).');
-};
+  /* Edit / Delete */
+  window.editProp = async function(id){
+    const docSnap = await getDoc(doc(getPropertiesCollectionRef(), id));
+    if(!docSnap.exists()) return customAlert('Property not found');
+    const p = docSnap.data();
+    
+    prop_title.value = p.title || '';
+    prop_price.value = p.price || '';
+    prop_deposit.value = p.deposit || '';
+    prop_address.value = p.address || '';
+    prop_university.value = p.university || '';
+    prop_amenities.value = (p.amenities || []).join(',');
+    prop_lat.value = p.lat || '';
+    prop_lng.value = p.lng || '';
+    
+    // Clear old photo preview/input, user must re-upload photos if they want new ones
+    prop_photos.value = '';
+    photosPreview.innerHTML = '';
+    (p.photos || []).forEach(url => {
+        const img = document.createElement('img');
+        img.src = url;
+        img.className = 'prop-thumb opacity-50'; // Show existing as greyed out
+        photosPreview.appendChild(img);
+    });
 
-window.deleteProp = async function(id){
-  if(!confirm('Delete property?')) return;
-  await db.collection('properties').doc(id).delete();
-  await loadPropertiesForUser();
-};
+    customAlert('Property details loaded into the form. Note: Saving will create a NEW property. If you wish to implement proper "edit" functionality (updating the old document), you would need to adjust the save handler.', false);
+  };
 
-/* SUBSCRIBE TO INQUIRIES FOR LANDLORD */
-function subscribeInquiriesForLandlord(){
-  if(!currentUser) return;
-  // cleanup previous
-  if(window._inquiriesUnsub) { window._inquiriesUnsub(); window._inquiriesUnsub = null; }
-  window._inquiriesUnsub = db.collection('inquiries')
-    .where('landlordId','==', currentUser.uid)
-    .orderBy('createdAt','desc')
-    .onSnapshot((snap) => {
+  window.deleteProp = async function(id){
+    if(!currentUser || currentUser.isAnonymous) return customAlert('Please sign in to delete properties.');
+    
+    try {
+      await deleteDoc(doc(getPropertiesCollectionRef(), id));
+      customAlert('Property successfully deleted.', false);
+      loadPropertiesForUser();
+    } catch (e) {
+      console.error('Delete property failed', e);
+      customAlert('Failed to delete property: ' + e.message);
+    }
+  };
+
+  // --- INQUIRIES & CHAT ---
+
+  /* SUBSCRIBE TO INQUIRIES FOR LANDLORD */
+  function subscribeInquiriesForLandlord(){
+    if(!currentUser || currentUser.isAnonymous) return;
+    
+    // cleanup previous
+    if(inquiriesUnsubscribe) { inquiriesUnsubscribe(); inquiriesUnsubscribe = null; }
+    
+    const q = query(
+      getInquiriesCollectionRef(),
+      where('landlordId','==', currentUser.uid),
+      orderBy('createdAt','desc')
+    );
+    
+    inquiriesUnsubscribe = onSnapshot(q, (snap) => {
       const items = [];
       snap.forEach(d => items.push({ id: d.id, ...d.data() }));
-      inquiriesList.innerHTML = items.map(i => `
-        <div class="list-item">
-          <strong>${escapeHtml(i.tenantName || 'Guest')}</strong>
-          <div class="small">${escapeHtml(i.tenantEmail || '')} ${i.tenantPhone ? ' • ' + escapeHtml(i.tenantPhone) : ''}</div>
-          <div style="margin-top:6px" class="small-muted">${escapeHtml(i.status || '—')}</div>
-          <div style="margin-top:8px">
-            <button class="btn ghost" onclick="openChat('${i.id}','${escapeHtml(i.tenantName||'Guest')}')">Open Chat</button>
-            <button class="btn ghost" onclick="markInquiryRead('${i.id}')">Mark Read</button>
-            <button class="btn ghost" onclick="deleteInquiry('${i.id}')">Delete</button>
+      inquiriesList.innerHTML = items.map(i => {
+        const badgeColor = i.status === 'read' || i.status === 'responded' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700';
+        return `<div class="list-item flex-col items-start">
+          <div class="flex justify-between w-full items-center">
+            <strong>${escapeHtml(i.tenantName || 'Guest')}</strong>
+            <span class="small-muted text-xs">${i.createdAt ? new Date(i.createdAt).toLocaleDateString() : ''}</span>
           </div>
-        </div>
-      `).join('');
-      if(items.length===0) inquiriesList.innerHTML = '<div class="small-muted">No inquiries yet.</div>';
+          <div class="small mt-1">${escapeHtml(i.tenantEmail || '')} ${i.tenantPhone ? ' • ' + escapeHtml(i.tenantPhone) : ''}</div>
+          <div style="margin-top:8px" class="flex gap-2 flex-wrap">
+            <span class="text-xs font-semibold ${badgeColor} px-2 py-1 rounded-full">${escapeHtml(i.status || 'new')}</span>
+            <button class="btn ghost text-xs px-2 py-1" onclick="window.openChat('${i.id}','${escapeHtml(i.tenantName||'Guest')}')">Open Chat</button>
+            <button class="btn ghost text-xs px-2 py-1" onclick="window.markInquiryRead('${i.id}')">Mark Read</button>
+            <button class="btn bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1" onclick="window.deleteInquiry('${i.id}')">Delete</button>
+          </div>
+        </div>`;
+      }).join('');
+      if(items.length===0) inquiriesList.innerHTML = '<div class="small-muted p-3">No inquiries yet.</div>';
     }, err => {
       console.error('Inquiries subscription error', err);
-      inquiriesList.innerHTML = '<div class="small-muted">Failed to load inquiries</div>';
+      inquiriesList.innerHTML = '<div class="small-muted p-3">Failed to load inquiries</div>';
     });
-}
-
-/* Helpers for inquiries */
-async function markInquiryRead(id){
-  try { await db.collection('inquiries').doc(id).update({ status: 'read' }); }
-  catch(e){ console.error(e); alert('Failed to mark read'); }
-}
-async function deleteInquiry(id){
-  if(!confirm('Delete inquiry?')) return;
-  try {
-    await db.collection('inquiries').doc(id).delete();
-    if (currentChatUnsubscribe && currentChatInquiryId===id){ currentChatUnsubscribe(); currentChatUnsubscribe=null; chatArea.style.display='none'; }
-  } catch(e){ console.error(e); alert('Failed to delete'); }
-}
-
-/* OPEN CHAT (listens to chats/{inquiryId}/messages) */
-window.openChat = function(inquiryId, tenantName){
-  if(currentChatUnsubscribe){ currentChatUnsubscribe(); currentChatUnsubscribe = null; }
-  currentChatInquiryId = inquiryId;
-  chatHeader.textContent = 'Chat with ' + tenantName;
-  chatArea.style.display = 'block';
-  messagesBox.innerHTML = '<div class="small-muted">Loading messages...</div>';
-  const msgsRef = db.collection('chats').doc(inquiryId).collection('messages').orderBy('timestamp');
-  currentChatUnsubscribe = msgsRef.onSnapshot(snap => {
-    messagesBox.innerHTML = '';
-    snap.forEach(doc => {
-      const m = doc.data();
-      const when = m.timestamp && m.timestamp.toDate ? m.timestamp.toDate().toLocaleString() : '';
-      if (m.senderType === 'tenant') {
-        messagesBox.innerHTML += `<div style="margin-bottom:8px"><div class="msg-tenant">${escapeHtml(m.text)}</div><div class="small-muted">${escapeHtml(m.senderName||'Tenant')} • ${escapeHtml(when)}</div></div>`;
-      } else {
-        messagesBox.innerHTML += `<div style="margin-bottom:8px;text-align:right"><div class="msg-landlord">${escapeHtml(m.text)}</div><div class="small-muted">${escapeHtml(when)}</div></div>`;
-      }
-    });
-    messagesBox.scrollTop = messagesBox.scrollHeight;
-  }, err => {
-    console.error('Chat subscription error', err);
-    messagesBox.innerHTML = '<div class="small-muted">Failed to load messages</div>';
-  });
-};
-
-/* Send landlord message (FIXED: correct inquiries doc update) */
-sendMsgBtn.addEventListener('click', async () => {
-  if(!currentUser) { alert('Login first'); return; }
-  if(!currentChatInquiryId) { alert('Open a chat first'); return; }
-  const text = chatInput.value.trim();
-  if(!text) return;
-  try {
-    await db.collection('chats').doc(currentChatInquiryId).collection('messages').add({
-      text,
-      senderType: 'landlord',
-      senderId: currentUser.uid,
-      senderName: currentUser.displayName || '',
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    // --- CORRECTED LINE: update inquiry status properly ---
-    await db.collection('inquiries').doc(currentChatInquiryId)
-      .update({ status: 'responded' })
-      .catch(()=>{});
-
-    chatInput.value = '';
-  } catch(e) {
-    console.error('Send failed', e);
-    alert('Failed to send message: ' + (e.message||e));
   }
-});
 
-/* small helper */
-function escapeHtml(s){
-  if(!s) return '';
-  return String(s).replace(/[&<>"'`=\/]/g, function (c) {
-    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','/':'&#47;','`':'&#96;','=':'&#61;'}[c];
+  /* Helpers for inquiries */
+  window.markInquiryRead = async function(id){
+    try { 
+      await updateDoc(doc(getInquiriesCollectionRef(), id), { status: 'read' });
+    } catch(e){ 
+      console.error(e); 
+      customAlert('Failed to mark read'); 
+    }
+  }
+
+  window.deleteInquiry = async function(id){
+    if(!currentUser || currentUser.isAnonymous) return customAlert('Please sign in to delete inquiries.');
+    
+    try {
+      await deleteDoc(doc(getInquiriesCollectionRef(), id));
+      customAlert('Inquiry successfully deleted.', false);
+      if (currentChatUnsubscribe && currentChatInquiryId===id){ 
+        currentChatUnsubscribe(); 
+        currentChatUnsubscribe=null; 
+        chatArea.style.display='none'; 
+      }
+    } catch(e){ 
+      console.error(e); 
+      customAlert('Failed to delete inquiry: ' + e.message); 
+    }
+  }
+
+  /* OPEN CHAT (listens to chats/{inquiryId}/messages) */
+  window.openChat = function(inquiryId, tenantName){
+    if(!currentUser || currentUser.isAnonymous) return customAlert('Please sign in to open chat.');
+
+    if(currentChatUnsubscribe){ currentChatUnsubscribe(); currentChatUnsubscribe = null; }
+    currentChatInquiryId = inquiryId;
+    chatHeader.textContent = 'Chat with ' + tenantName;
+    chatArea.style.display = 'block';
+    messagesBox.innerHTML = '<div class="small-muted p-2">Loading messages...</div>';
+    
+    // Modular query for chat messages
+    const msgsRef = getChatMessagesCollectionRef(inquiryId);
+    const q = query(msgsRef, orderBy('timestamp', 'asc'));
+
+    currentChatUnsubscribe = onSnapshot(q, snap => {
+      messagesBox.innerHTML = '';
+      snap.forEach(doc => {
+        const m = doc.data();
+        const when = m.timestamp && m.timestamp.toDate ? m.timestamp.toDate().toLocaleString() : '';
+        if (m.senderType === 'tenant') {
+          messagesBox.innerHTML += `<div style="margin-bottom:10px; text-align:left;">
+            <div class="msg-tenant">${escapeHtml(m.text)}</div>
+            <div class="small-muted text-xs mt-1 ml-1">${escapeHtml(m.senderName||'Tenant')} • ${escapeHtml(when)}</div>
+          </div>`;
+        } else {
+          messagesBox.innerHTML += `<div style="margin-bottom:10px; text-align:right;">
+            <div class="msg-landlord">${escapeHtml(m.text)}</div>
+            <div class="small-muted text-xs mt-1 mr-1">${escapeHtml(when)}</div>
+          </div>`;
+        }
+      });
+      messagesBox.scrollTop = messagesBox.scrollHeight;
+    }, err => {
+      console.error('Chat subscription error', err);
+      messagesBox.innerHTML = '<div class="small-muted p-2">Failed to load messages</div>';
+    });
+  };
+
+  /* Send landlord message */
+  sendMsgBtn.addEventListener('click', async () => {
+    if(!currentUser || currentUser.isAnonymous) { customAlert('Login first'); return; }
+    if(!currentChatInquiryId) { customAlert('Open a chat first'); return; }
+    const text = chatInput.value.trim();
+    if(!text) return;
+
+    sendMsgBtn.disabled = true;
+
+    try {
+      // 1. Add message to the secure chat messages subcollection
+      await addDoc(getChatMessagesCollectionRef(currentChatInquiryId), {
+        text,
+        senderType: 'landlord',
+        senderId: currentUser.uid,
+        senderName: currentUser.displayName || '',
+        timestamp: serverTimestamp()
+      });
+
+      // 2. Update inquiry status to 'responded'
+      await updateDoc(doc(getInquiriesCollectionRef(), currentChatInquiryId), { status: 'responded' }).catch(e => {
+        console.warn("Failed to update inquiry status:", e.message);
+      });
+
+      chatInput.value = '';
+    } catch(e) {
+      console.error('Send failed', e);
+      customAlert('Failed to send message: ' + (e.message||e));
+    } finally {
+      sendMsgBtn.disabled = false;
+    }
   });
-}
 
-/* cleanup */
-window.addEventListener('beforeunload', () => {
-  if (currentChatUnsubscribe) currentChatUnsubscribe();
-  if (window._inquiriesUnsub) window._inquiriesUnsub();
-});
+  /* small helper for security */
+  function escapeHtml(s){
+    if(!s) return '';
+    return String(s).replace(/[&<>"'`=\/]/g, function (c) {
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','/':'&#47;','`':'&#96;','=':'&#61;'}[c];
+    });
+  }
+
+  /* cleanup */
+  window.addEventListener('beforeunload', () => {
+    if (currentChatUnsubscribe) currentChatUnsubscribe();
+    if (inquiriesUnsubscribe) inquiriesUnsubscribe();
+  });
 </script>
 </body>
 </html>
