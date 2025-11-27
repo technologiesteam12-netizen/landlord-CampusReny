@@ -35,16 +35,7 @@ body{margin:0;font-family:Inter,Arial,system-ui;background:var(--bg);color:#222;
 .grid{display:grid;grid-template-columns:1fr 400px;gap:12px}
 #myPropsList{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
 .card img{border-radius:6px;object-fit:cover}
-  @media screen and (max-width:768px){.sidebar{transform:translateX(-100%);}.btn-toggle{display:flex;}#dashboardSection{margin-left:0;}}
-@media screen and (min-width:769px){#dashboardSection{margin-left:260px;}}
-/* Responsive */
-@media screen and (max-width:768px){
-  .sidebar{transform:translateX(-100%);}
-  .btn-toggle{display:flex;}
-  .main-content{margin-left:0;}
-  #myPropsList{justify-content:center;}
-}
-  
+
 /* Sidebar */
 .sidebar{width:250px;background:#fff;border-right:1px solid #ddd;padding:12px;display:flex;flex-direction:column}
 .sidebar h3{margin-top:0;margin-bottom:12px;color:var(--brand)}
