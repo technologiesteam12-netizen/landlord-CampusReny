@@ -4,555 +4,349 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>CampusRent — Landlord</title>
-
-<!-- Leaflet (map preview) -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<!-- Firebase (compat SDK for simplicity) -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
-
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <style>
-:root{ --brand:#92adcc; --bg:#F5F5F5; --muted:#7d8590; --card-shadow:0 8px 20px rgba(20,20,20,0.06) }
+:root{--brand:#2b7aa0;--bg:#f7f8fb;--muted:#6f7b86;--card-shadow:0 8px 18px rgba(20,20,20,0.06)}
 *{box-sizing:border-box}
-body{margin:0;font-family:Inter,Arial,system-ui;background:var(--bg);color:#222}
+body{margin:0;font-family:Inter,Arial,system-ui;background:var(--bg);color:#222;display:flex;height:100vh}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#fff;border-bottom:1px solid #e0e0e0}
 .brand{display:flex;align-items:center;gap:10px}
 .brand img{height:40px}
 .btn{background:var(--brand);color:#fff;padding:8px 12px;border-radius:8px;border:0;cursor:pointer}
 .btn.ghost{background:transparent;border:1px solid #ddd;color:#222}
-.container{max-width:1000px;margin:18px auto;padding:12px}
-.card{background:#fff;padding:12px;border-radius:12px;box-shadow:var(--card-shadow);margin-bottom:12px}
-.grid{display:grid;grid-template-columns:1fr 360px;gap:12px}
-.form-row{display:flex;gap:8px;flex-wrap:wrap}
+.container{padding:12px;overflow-y:auto;flex:1;height:100%}
+.card{background:#fff;padding:12px;border-radius:12px;box-shadow:var(--card-shadow);margin-bottom:12px;display:flex;flex-direction:column}
 .input, textarea, select{width:100%;padding:8px;border-radius:8px;border:1px solid #ddd}
 .small{font-size:13px;color:var(--muted)}
-.list-item{padding:10px;border-radius:8px;border:1px solid #eee;margin-bottom:8px;background:#fff'}
-.notice{background:#FFF4E5;padding:10px;border-radius:8px;border:1px solid #f0d9b5}
-.badge{background:#e6f7ff;color:var(--brand);padding:6px 10px;border-radius:999px}
+.list-item{padding:10px;border-radius:8px;border:1px solid #eee;margin-bottom:8px;background:#fff}
 .messages-box{height:260px;overflow-y:auto;padding:8px;background:#f6f8fa;border-radius:8px;border:1px solid #eee}
 .msg-tenant{background:#e8f0ff;padding:6px 8px;border-radius:8px;display:inline-block}
 .msg-landlord{background:#e6ffe6;padding:6px 8px;border-radius:8px;display:inline-block}
 .small-muted{font-size:12px;color:#999}
 .prop-thumb{width:120px;height:80px;object-fit:cover;border-radius:6px}
+.hidden{display:none}
+.center{display:flex;align-items:center;justify-content:center}
+.agree-box{max-width:760px;margin:18px auto;padding:18px}
+.grid{display:grid;grid-template-columns:1fr 400px;gap:12px}
+#myPropsList{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+.card img{border-radius:6px;object-fit:cover}
+
+/* Sidebar */
+.sidebar{width:250px;background:#fff;border-right:1px solid #ddd;padding:12px;display:flex;flex-direction:column}
+.sidebar h3{margin-top:0;margin-bottom:12px;color:var(--brand)}
+.sidebar button{margin-bottom:6px}
+.main-content{flex:1;display:flex;flex-direction:column;overflow-y:auto}
 </style>
 </head>
 <body>
-<header class="topbar">
-  <div class="brand">
-    <img src="https://i.ibb.co/1fk4cgjr/Chat-GPT-Image-Nov-21-2025-05-20-42-PM.png" alt="logo">
-    <h2 style="margin:0;color:var(--brand)">CampusRent — Landlord</h2>
-  </div>
-  <div>
-    <button id="btnLogout" class="btn" style="display:none">Logout</button>
-    <button id="btnShowLogin" class="btn ghost">Login / Register</button>
-  </div>
-</header>
+<div class="sidebar">
+  <h3>Dashboard</h3>
+  <button id="btnShowAddProperty" class="btn">Add Property</button>
+  <button id="btnShowMyProperties" class="btn ghost">My Properties</button>
+  <button id="btnShowMap" class="btn ghost">Map</button>
+  <button id="btnLogout" class="btn hidden">Logout</button>
+</div>
 
-<div class="container">
-  <div id="authArea" class="card">
-    <h3>Account</h3>
-    <div id="authForms">
-      <div id="registerForm">
-        <p class="small">Register as landlord (email + password)</p>
-        <div class="form-row">
-          <input id="reg_name" class="input" placeholder="Full name">
-          <input id="reg_email" class="input" placeholder="Email">
-        </div>
-        <div class="form-row" style="margin-top:8px">
-          <input id="reg_password" class="input" placeholder="Password">
-          <button id="btnRegister" class="btn">Register</button>
-        </div>
-        <p class="small">Or sign in with Google</p>
-        <button id="btnGoogle" class="btn ghost">Sign in with Google</button>
-      </div>
-
-      <div id="loginForm" style="display:none;margin-top:12px">
-        <p class="small">Login</p>
-        <div class="form-row">
-          <input id="login_email" class="input" placeholder="Email">
-          <input id="login_password" class="input" placeholder="Password">
-        </div>
-        <div style="margin-top:8px">
-          <button id="btnLogin" class="btn">Login</button>
-        </div>
+<div class="main-content">
+  <div id="agreementSection" class="agree-box card">
+    <h2>Agreement</h2>
+    <p class="small">Registration fee: KSh 300. Commission: 10% of rent.</p>
+    <div class="card" style="margin-top:8px">
+      <h4>Paybill / Pochi La Biashara: 0115613332</h4>
+      <p class="small">After payment enter phone + transaction code below. Submission will open registration.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input id="pay_phone" class="input" placeholder="Phone used to pay (07... )">
+        <input id="pay_tx" class="input" placeholder="MPESA Transaction Code">
+        <button id="btnSubmitPayment" class="btn">Submit Payment</button>
       </div>
     </div>
   </div>
 
-  <div id="dashboard" class="card" style="display:none">
-    <h3>Your Properties <span class="small">(<span id="propCount">0</span>)</span></h3>
-
-    <div class="grid" style="margin-top:8px">
-      <div>
-        <div class="card">
-          <h4>Add / Edit Property</h4>
-          <div style="margin-top:8px">
-            <input id="prop_title" class="input" placeholder="Property title (e.g. 2BR near JKUAT)">
-            <div style="display:flex;gap:8px;margin-top:8px">
-              <input id="prop_price" class="input" placeholder="Monthly rent (KSh)">
-              <input id="prop_deposit" class="input" placeholder="Deposit (KSh)">
-            </div>
-            <textarea id="prop_address" class="input" placeholder="Address (full)"></textarea>
-            <input id="prop_university" class="input" placeholder="Nearby university / campus (optional)">
-            <div style="margin-top:8px">
-              <label class="small">Amenities (comma separated)</label>
-              <input id="prop_amenities" class="input" placeholder="water,electricity,wifi">
-            </div>
-
-            <div style="margin-top:8px">
-              <label class="small">Photos (max 6)</label>
-              <input id="prop_photos" type="file" multiple accept="image/*">
-              <div id="photosPreview" style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"></div>
-            </div>
-
-            <div style="margin-top:8px">
-              <label class="small">Location (press Geocode to fetch lat/lng from address)</label>
-              <div style="display:flex;gap:8px">
-                <input id="prop_lat" class="input" placeholder="lat">
-                <input id="prop_lng" class="input" placeholder="lng">
-                <button id="btnGeocode" class="btn">Geocode</button>
-              </div>
-            </div>
-
-            <div style="margin-top:10px;display:flex;gap:8px">
-              <button id="btnSaveProperty" class="btn">Save Property</button>
-              <button id="btnClear" class="btn ghost">Clear</button>
-            </div>
-            <div class="small" style="margin-top:8px;color:#666">Properties you add will appear on the tenant site after publishing.</div>
-          </div>
-        </div>
-
-        <div id="myPropsList" style="margin-top:12px"></div>
+  <div id="registerSection" class="container hidden">
+    <div class="card">
+      <h3>Register</h3>
+      <div style="display:flex;gap:8px">
+        <input id="reg_name" class="input" placeholder="Full name">
+        <input id="reg_email" class="input" placeholder="Email">
       </div>
-
-      <div>
-        <div class="card">
-          <h4>Map preview</h4>
-          <div id="map" style="height:360px;border-radius:8px;background:#eef6fb"></div>
-        </div>
-
-        <div class="card" style="margin-top:12px">
-          <h4>Inquiries & Chat</h4>
-          <div id="inquiriesList" style="margin-top:8px"></div>
-
-          <div id="chatArea" style="display:none;margin-top:12px">
-            <div id="chatHeader" class="small-muted" style="margin-bottom:6px"></div>
-            <div id="messagesBox" class="messages-box"></div>
-            <div style="display:flex;gap:8px;margin-top:8px">
-              <input id="chatInput" class="input" placeholder="Type a reply...">
-              <button id="sendMsgBtn" class="btn">Send</button>
-            </div>
-            <div style="margin-top:6px" class="small-muted">Messages are realtime.</div>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:12px">
-          <h4>Notes</h4>
-          <div class="notice small">This page is landlord-only. Tenant inquiries should be created by the tenant app/site under the `inquiries` collection (with `landlordId` set to this landlord's UID). Chat messages are stored under `chats/{inquiryId}/messages`.</div>
-        </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input id="reg_password" class="input" placeholder="Password" type="password">
+        <button id="btnRegister" class="btn">Register</button>
       </div>
+    </div>
+  </div>
+
+  <div id="loginSection" class="container hidden">
+    <div class="card">
+      <h3>Login</h3>
+      <div style="display:flex;gap:8px">
+        <input id="login_email" class="input" placeholder="Email">
+        <input id="login_password" class="input" placeholder="Password" type="password">
+      </div>
+      <div style="margin-top:8px">
+        <button id="btnLogin" class="btn">Login</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="dashboardSection" class="container hidden">
+    <!-- Add Property Form -->
+    <div id="addPropertySection" class="card hidden">
+      <h4>Add Property</h4>
+      <input id="prop_title" class="input" placeholder="Property title">
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input id="prop_price" class="input" placeholder="Monthly rent (KSh)" type="number">
+        <input id="prop_deposit" class="input" placeholder="Deposit (KSh)" type="number">
+      </div>
+      <textarea id="prop_address" class="input" placeholder="Address"></textarea>
+      <input id="prop_university" class="input" placeholder="Nearby campus (optional)">
+      <div style="margin-top:8px">
+        <label class="small">Photos (max 6)</label>
+        <input id="prop_photos" type="file" multiple accept="image/*">
+        <div id="photosPreview" style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input id="prop_lat" class="input" placeholder="Latitude">
+        <input id="prop_lng" class="input" placeholder="Longitude">
+        <button id="btnGeocode" class="btn">Geocode</button>
+        <button id="btnGetLocation" class="btn">Use My Location</button>
+      </div>
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <button id="btnSaveProperty" class="btn">Save Property</button>
+        <button id="btnClear" class="btn ghost">Clear</button>
+      </div>
+    </div>
+
+    <!-- Properties List -->
+    <div id="myPropertiesSection" class="card hidden">
+      <h3>Your Properties <span class="small">(<span id="propCount">0</span>)</span></h3>
+      <div id="myPropsList"></div>
+    </div>
+
+    <!-- Map Section -->
+    <div id="mapSection" class="card hidden">
+      <h4>Map Preview</h4>
+      <div id="map" style="height:400px;border-radius:8px;background:#eef6fb"></div>
     </div>
   </div>
 </div>
 
-<!-- FIREBASE CONFIG: corrected storageBucket -->
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyBNI_Pb_54NMvte-m6oYnwlpTikaqmHxqQ",
   authDomain: "campus-rent-7d1ef.firebaseapp.com",
+  databaseURL: "https://campus-rent-7d1ef-default-rtdb.firebaseio.com",
   projectId: "campus-rent-7d1ef",
   storageBucket: "campus-rent-7d1ef.appspot.com",
   messagingSenderId: "849345981750",
-  appId: "1:849345981750:web:a787bab1e485aa631b5797",
-  measurementId: "G-889BD0W9PX"
+  appId: "1:849345981750:web:a787bab1e485aa631b5797"
 };
-</script>
-
-<script>
-/* Landlord-only working app */
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-const db = firebase.firestore();
-const storage = firebase.storage();
+const firestore = firebase.firestore();
+const rtdb = firebase.database();
+const $ = id=>document.getElementById(id);
 
-const $ = id => document.getElementById(id);
+let currentUser=null, editingId=null;
+const agreementSection = $('agreementSection'), registerSection = $('registerSection'), loginSection = $('loginSection'), dashboardSection = $('dashboardSection');
+const addPropertySection=$('addPropertySection'), myPropertiesSection=$('myPropertiesSection'), mapSection=$('mapSection');
+const btnLogout = $('btnLogout'), btnSubmitPayment=$('btnSubmitPayment'), btnRegister=$('btnRegister'), btnLogin=$('btnLogin');
+const prop_photos=$('prop_photos'), photosPreview=$('photosPreview'), btnSaveProperty=$('btnSaveProperty'), btnClear=$('btnClear'), propCount=$('propCount'), myPropsList=$('myPropsList');
 
-// auth UI
-const btnShowLogin = $('btnShowLogin');
-const btnLogout = $('btnLogout');
-const btnRegister = $('btnRegister');
-const btnLogin = $('btnLogin');
-const btnGoogle = $('btnGoogle');
+// Sidebar buttons
+$('btnShowAddProperty').onclick=()=>{
+  addPropertySection.classList.remove('hidden');
+  myPropertiesSection.classList.add('hidden');
+  mapSection.classList.add('hidden');
+};
+$('btnShowMyProperties').onclick=()=>{
+  addPropertySection.classList.add('hidden');
+  myPropertiesSection.classList.remove('hidden');
+  mapSection.classList.add('hidden');
+};
+$('btnShowMap').onclick=()=>{
+  addPropertySection.classList.add('hidden');
+  myPropertiesSection.classList.add('hidden');
+  mapSection.classList.remove('hidden');
+};
 
-const registerForm = $('registerForm');
-const loginForm = $('loginForm');
+// Initialize map
+let map = L.map('map').setView([-1.286389,36.817223],13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'© OpenStreetMap' }).addTo(map);
+let marker = L.marker([-1.286389,36.817223], {draggable:true}).addTo(map);
+marker.on('dragend', ()=>{ const pos=marker.getLatLng(); $('prop_lat').value=pos.lat; $('prop_lng').value=pos.lng; });
 
-const dashboard = $('dashboard');
-const propCount = $('propCount');
-const myPropsList = $('myPropsList');
+// Payment
+btnSubmitPayment.onclick = async ()=>{
+  const phone = $('pay_phone').value.trim(), tx = $('pay_tx').value.trim();
+  if(!phone||!tx) return alert('Enter phone & transaction code');
+  await firestore.collection('payments').doc(phone).set({phone,txCode:tx,status:'paid',paidAt:Date.now()});
+  localStorage.setItem('paidPhone',phone);
+  agreementSection.classList.add('hidden');
+  registerSection.classList.remove('hidden');
+};
 
-const prop_title = $('prop_title');
-const prop_price = $('prop_price');
-const prop_deposit = $('prop_deposit');
-const prop_address = $('prop_address');
-const prop_university = $('prop_university');
-const prop_amenities = $('prop_amenities');
-const prop_photos = $('prop_photos');
-const photosPreview = $('photosPreview');
-const prop_lat = $('prop_lat'); const prop_lng = $('prop_lng');
-const btnGeocode = $('btnGeocode');
-const btnSaveProperty = $('btnSaveProperty');
-const btnClear = $('btnClear');
+// Register
+btnRegister.onclick = async ()=>{
+  const name=$('reg_name').value.trim(), email=$('reg_email').value.trim(), pass=$('reg_password').value;
+  if(!email||!pass) return alert('Email & password required');
+  const cred = await auth.createUserWithEmailAndPassword(email,pass);
+  await cred.user.updateProfile({displayName:name||''});
+  const phone=localStorage.getItem('paidPhone');
+  await firestore.collection('landlords').doc(cred.user.uid).set({name,email,paymentPhone:phone,paymentStatus:'paid',createdAt:Date.now()});
+  registerSection.classList.add('hidden');
+  loginSection.classList.remove('hidden');
+};
 
-const inquiriesList = $('inquiriesList');
-const chatArea = $('chatArea');
-const chatHeader = $('chatHeader');
-const messagesBox = $('messagesBox');
-const chatInput = $('chatInput');
-const sendMsgBtn = $('sendMsgBtn');
+// Login
+btnLogin.onclick = async ()=>{
+  const email=$('login_email').value.trim(), pass=$('login_password').value;
+  if(!email||!pass) return alert('Email & password required');
+  await auth.signInWithEmailAndPassword(email,pass);
+};
 
-let currentUser = null;
-let map = null;
-let markers = [];
-let currentChatInquiryId = null;
-let currentChatUnsubscribe = null;
+// Logout
+btnLogout.onclick = ()=>auth.signOut();
 
-// map
-function initMap() {
-  if (map) return;
-  map = L.map('map').setView([-1.286389, 36.817223], 13);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
-}
-initMap();
-
-/* Toggle login/register UI */
-btnShowLogin.addEventListener('click', () => {
-  if (loginForm.style.display === 'none') {
-    loginForm.style.display = 'block';
-    registerForm.style.display = 'none';
-  } else {
-    loginForm.style.display = 'none';
-    registerForm.style.display = 'block';
-  }
-});
-
-/* Google sign-in */
-btnGoogle.addEventListener('click', async () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  try {
-    const res = await auth.signInWithPopup(provider);
-    await createProfileIfMissing(res.user);
-  } catch(e){ alert('Google sign-in failed: ' + e.message); }
-});
-
-/* Email register */
-btnRegister.addEventListener('click', async () => {
-  const name = $('reg_name').value.trim();
-  const email = $('reg_email').value.trim();
-  const pass = $('reg_password').value;
-  if(!email||!pass) return alert('Email and password required');
-  try {
-    const cred = await auth.createUserWithEmailAndPassword(email, pass);
-    await cred.user.updateProfile({ displayName: name || '' });
-    await createProfileIfMissing(cred.user);
-  } catch(e){ alert('Register failed: ' + e.message); }
-});
-
-/* Email login */
-btnLogin.addEventListener('click', async () => {
-  const email = $('login_email').value.trim();
-  const pass = $('login_password').value;
-  try{
-    await auth.signInWithEmailAndPassword(email, pass);
-  }catch(e){ alert('Login failed: ' + e.message); }
-});
-
-btnLogout.addEventListener('click', ()=> auth.signOut());
-
-auth.onAuthStateChanged(async user => {
-  currentUser = user;
+// Auth state
+auth.onAuthStateChanged(user=>{
+  currentUser=user;
   if(user){
-    btnLogout.style.display = 'inline-block';
-    btnShowLogin.style.display = 'none';
-    dashboard.style.display = 'block';
-    $('authArea').style.display = 'none';
-    await loadPropertiesForUser();
-    subscribeInquiriesForLandlord();
+    btnLogout.classList.remove('hidden');
+    agreementSection.classList.add('hidden');
+    registerSection.classList.add('hidden');
+    loginSection.classList.add('hidden');
+    dashboardSection.classList.remove('hidden');
+    addPropertySection.classList.remove('hidden');
+    myPropertiesSection.classList.add('hidden');
+    mapSection.classList.add('hidden');
+    loadPropertiesForUser();
   } else {
-    btnLogout.style.display = 'none';
-    btnShowLogin.style.display = 'inline-block';
-    dashboard.style.display = 'none';
-    $('authArea').style.display = 'block';
-    if (currentChatUnsubscribe) { currentChatUnsubscribe(); currentChatUnsubscribe = null; }
-    inquiriesList.innerHTML = '';
-    chatArea.style.display = 'none';
+    btnLogout.classList.add('hidden');
+    dashboardSection.classList.add('hidden');
+    loginSection.classList.add('hidden');
+    registerSection.classList.add('hidden');
+    agreementSection.classList.remove('hidden');
   }
 });
 
-async function createProfileIfMissing(user){
-  if(!user) return;
-  const ref = db.collection('landlords').doc(user.uid);
-  const doc = await ref.get();
-  if(!doc.exists){
-    await ref.set({
-      name: user.displayName || '',
-      email: user.email || '',
-      createdAt: Date.now()
-    });
-  }
-}
-
-/* Photos preview */
-prop_photos.addEventListener('change', (e) => {
-  photosPreview.innerHTML = '';
-  const files = Array.from(e.target.files).slice(0,6);
-  files.forEach(file => {
-    const img = document.createElement('img');
-    img.src = URL.createObjectURL(file);
-    img.style.width = '120px'; img.style.height = '80px'; img.style.objectFit='cover'; img.style.borderRadius='6px';
+// Photos preview
+prop_photos.addEventListener('change', e=>{
+  photosPreview.innerHTML='';
+  Array.from(e.target.files||[]).slice(0,6).forEach(f=>{
+    const img=document.createElement('img');
+    img.src=URL.createObjectURL(f);
+    img.style.width='120px'; img.style.height='80px'; img.style.objectFit='cover'; img.style.borderRadius='6px';
     photosPreview.appendChild(img);
   });
 });
 
-/* Geocode (Nominatim) */
-btnGeocode.addEventListener('click', async () => {
-  const q = prop_address.value.trim();
-  if(!q) return alert('Enter address to geocode');
-  try{
-    const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(q + ' Kenya');
-    const r = await fetch(url);
-    const data = await r.json();
-    if(data && data.length){
-      prop_lat.value = data[0].lat;
-      prop_lng.value = data[0].lon;
-      map.setView([data[0].lat, data[0].lon], 15);
-      L.marker([data[0].lat, data[0].lon]).addTo(map);
-    } else alert('Location not found');
-  }catch(e){ alert('Geocode failed: ' + e.message); }
-});
-
-/* Save property with robust error handling */
-btnSaveProperty.addEventListener('click', async () => {
-  if(!currentUser) return alert('Login first');
-  const title = prop_title.value.trim();
-  const price = Number(prop_price.value)||0;
-  const deposit = Number(prop_deposit.value)||0;
-  const address = prop_address.value.trim();
-  const uni = prop_university.value.trim();
-  const amenities = (prop_amenities.value || '').split(',').map(s=>s.trim()).filter(Boolean);
-  const lat = parseFloat(prop_lat.value) || null;
-  const lng = parseFloat(prop_lng.value) || null;
-
-  if(!title || !price || !address) return alert('Title, price and address required');
-
-  try {
-    // Upload photos (if any)
-    const files = Array.from(prop_photos.files || []).slice(0,6);
-    const photoUrls = [];
-    for (let i = 0; i < files.length; i++) {
-      const f = files[i];
-      const ext = (f.name.split('.').pop() || 'jpg').replace(/[^a-z0-9]/gi,'');
-      const path = `properties/${currentUser.uid}/${Date.now()}_${i}.${ext}`;
-      const snap = await storage.ref(path).put(f);
-      const url = await snap.ref.getDownloadURL();
-      photoUrls.push(url);
-    }
-
-    const doc = {
-      ownerId: currentUser.uid,
-      title, price, deposit, address, university: uni, amenities,
-      photos: photoUrls,
-      lat, lng,
-      createdAt: Date.now(),
-      published: true
-    };
-
-    await db.collection('properties').add(doc);
-    alert('Property saved');
-    clearForm();
-    await loadPropertiesForUser();
-  } catch (e) {
-    console.error('Save property failed', e);
-    alert('Failed to save property: ' + (e.message || e));
-  }
-});
-
-btnClear.addEventListener('click', clearForm);
-function clearForm(){
-  prop_title.value=''; prop_price.value=''; prop_deposit.value=''; prop_address.value=''; prop_university.value='';
-  prop_amenities.value=''; prop_photos.value=''; photosPreview.innerHTML=''; prop_lat.value=''; prop_lng.value='';
+// File to Base64
+async function fileToBase64(file){
+  return new Promise(res=>{ const fr=new FileReader(); fr.onload=e=>res(e.target.result); fr.readAsDataURL(file); });
 }
 
-/* Load properties for this landlord */
+// Clear form
+btnClear.onclick = ()=>{
+  $('prop_title').value=''; $('prop_price').value=''; $('prop_deposit').value=''; $('prop_address').value='';
+  $('prop_lat').value=''; $('prop_lng').value=''; $('prop_university').value=''; prop_photos.value=''; photosPreview.innerHTML='';
+  btnSaveProperty.innerText='Save Property'; editingId=null;
+};
+
+// Save/Update property
+btnSaveProperty.onclick = async ()=>{
+  if(!currentUser) return alert('Login required');
+  const title=$('prop_title').value.trim(), price=parseFloat($('prop_price').value),
+        deposit=parseFloat($('prop_deposit').value), address=$('prop_address').value.trim(),
+        lat=parseFloat($('prop_lat').value), lng=parseFloat($('prop_lng').value), uni=$('prop_university').value.trim();
+  if(!title||!price||!address||!lat||!lng) return alert('Fill required fields');
+  let photosBase64 = [];
+  if(prop_photos.files.length) photosBase64 = await Promise.all(Array.from(prop_photos.files).slice(0,6).map(fileToBase64));
+
+  if(editingId){
+    await firestore.collection('properties').doc(editingId).update({title,price,deposit,address,lat,lng,uni,landlordId:currentUser.uid});
+    if(photosBase64.length) await rtdb.ref('propertyImages/'+editingId).set({images:photosBase64});
+    alert('Property updated!');
+    editingId=null;
+    btnSaveProperty.innerText='Save Property';
+  } else {
+    const docRef = await firestore.collection('properties').add({title,price,deposit,address,lat,lng,uni,createdAt:Date.now(),landlordId:currentUser.uid});
+    if(photosBase64.length) await rtdb.ref('propertyImages/'+docRef.id).set({images:photosBase64});
+    alert('Property saved!');
+  }
+  btnClear.onclick();
+  loadPropertiesForUser();
+};
+
+// Load properties
 async function loadPropertiesForUser(){
   if(!currentUser) return;
-  try {
-    // NOTE: This query needs a composite index in Firestore:
-    // where('ownerId','==', currentUser.uid) + orderBy('createdAt','desc')
-    const snap = await db.collection('properties')
-      .where('ownerId','==',currentUser.uid)
-      .orderBy('createdAt','desc')
-      .get();
+  const snap = await firestore.collection('properties').get();
+  const props = [];
+  snap.forEach(doc=>{ const p=doc.data(); p.id=doc.id; if(p.landlordId===currentUser.uid) props.push(p); });
+  propCount.innerText = props.length;
+  myPropsList.innerHTML='';
 
-    const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    propCount.textContent = items.length;
-    myPropsList.innerHTML = items.map(p => `
-      <div class="list-item">
-        <div style="display:flex;gap:10px">
-          <img src="${(p.photos && p.photos[0]) || 'https://i.imgur.com/ko4j1pK.jpeg'}" class="prop-thumb">
-          <div style="flex:1">
-            <strong>${escapeHtml(p.title)}</strong>
-            <div class="small">${escapeHtml(p.address)}</div>
-            <div style="margin-top:6px"><span class="badge">${escapeHtml(p.university||'—')}</span> <span style="margin-left:8px">KSh ${escapeHtml(String(p.price||''))}</span></div>
-            <div style="margin-top:8px">
-              <button class="btn ghost" onclick="editProp('${p.id}')">Edit</button>
-              <button class="btn ghost" onclick="deleteProp('${p.id}')">Delete</button>
-            </div>
-          </div>
-        </div>
+  for(const p of props){
+    const card=document.createElement('div'); card.className='card'; card.style.width='260px';
+    let photos=[];
+    const photosSnap = await rtdb.ref('propertyImages/'+p.id+'/images').get();
+    if(photosSnap.exists()) photos=Object.values(photosSnap.val());
+    const firstImg = photos[0] || 'https://via.placeholder.com/250x140?text=No+Image';
+    card.innerHTML = `
+      <img src="${firstImg}" style="width:100%;height:140px;margin-bottom:6px">
+      <h4 style="margin:4px 0">${p.title}</h4>
+      <p style="margin:0 0 4px"><b>KSh ${p.price}</b> / month</p>
+      <p style="margin:0 0 4px">${p.address}</p>
+      <div style="display:flex;gap:8px;margin-top:auto">
+        <button class="btn btn-edit" data-id="${p.id}">Edit</button>
+        <button class="btn btn-delete" data-id="${p.id}">Delete</button>
       </div>
-    `).join('');
-    if(items.length===0) myPropsList.innerHTML = '<div class="small-muted">You have no properties yet.</div>';
-  } catch (e) {
-    console.error('Load properties failed', e);
-    myPropsList.innerHTML = '<div class="small-muted">Failed to load properties</div>';
+    `;
+    myPropsList.appendChild(card);
+
+    card.querySelector('.btn-edit').onclick=()=>{
+      editingId=p.id;
+      $('prop_title').value=p.title; $('prop_price').value=p.price; $('prop_deposit').value=p.deposit;
+      $('prop_address').value=p.address; $('prop_lat').value=p.lat; $('prop_lng').value=p.lng;
+      $('prop_university').value=p.uni||'';
+      photosPreview.innerHTML='';
+      photos.forEach(img=>{ const im=document.createElement('img'); im.src=img; im.style.width='120px'; im.style.height='80px'; im.style.objectFit='cover'; im.style.borderRadius='6px'; photosPreview.appendChild(im); });
+      btnSaveProperty.innerText='Update Property';
+    };
+
+    card.querySelector('.btn-delete').onclick=async()=>{ if(confirm('Delete this property?')){ await firestore.collection('properties').doc(p.id).delete(); await rtdb.ref('propertyImages/'+p.id).remove(); loadPropertiesForUser(); } };
   }
 }
 
-/* Edit / Delete */
-window.editProp = async function(id){
-  const doc = await db.collection('properties').doc(id).get();
-  if(!doc.exists) return alert('Not found');
-  const p = doc.data();
-  prop_title.value = p.title || '';
-  prop_price.value = p.price || '';
-  prop_deposit.value = p.deposit || '';
-  prop_address.value = p.address || '';
-  prop_university.value = p.university || '';
-  prop_amenities.value = (p.amenities || []).join(',');
-  prop_lat.value = p.lat || '';
-  prop_lng.value = p.lng || '';
-  alert('Loaded property into form. After editing press Save to create a NEW property (edit-save flow can be added).');
-};
-
-window.deleteProp = async function(id){
-  if(!confirm('Delete property?')) return;
-  await db.collection('properties').doc(id).delete();
-  await loadPropertiesForUser();
-};
-
-/* SUBSCRIBE TO INQUIRIES FOR LANDLORD */
-function subscribeInquiriesForLandlord(){
-  if(!currentUser) return;
-  // cleanup previous
-  if(window._inquiriesUnsub) { window._inquiriesUnsub(); window._inquiriesUnsub = null; }
-  window._inquiriesUnsub = db.collection('inquiries')
-    .where('landlordId','==', currentUser.uid)
-    .orderBy('createdAt','desc')
-    .onSnapshot((snap) => {
-      const items = [];
-      snap.forEach(d => items.push({ id: d.id, ...d.data() }));
-      inquiriesList.innerHTML = items.map(i => `
-        <div class="list-item">
-          <strong>${escapeHtml(i.tenantName || 'Guest')}</strong>
-          <div class="small">${escapeHtml(i.tenantEmail || '')} ${i.tenantPhone ? ' • ' + escapeHtml(i.tenantPhone) : ''}</div>
-          <div style="margin-top:6px" class="small-muted">${escapeHtml(i.status || '—')}</div>
-          <div style="margin-top:8px">
-            <button class="btn ghost" onclick="openChat('${i.id}','${escapeHtml(i.tenantName||'Guest')}')">Open Chat</button>
-            <button class="btn ghost" onclick="markInquiryRead('${i.id}')">Mark Read</button>
-            <button class="btn ghost" onclick="deleteInquiry('${i.id}')">Delete</button>
-          </div>
-        </div>
-      `).join('');
-      if(items.length===0) inquiriesList.innerHTML = '<div class="small-muted">No inquiries yet.</div>';
-    }, err => {
-      console.error('Inquiries subscription error', err);
-      inquiriesList.innerHTML = '<div class="small-muted">Failed to load inquiries</div>';
-    });
-}
-
-/* Helpers for inquiries */
-async function markInquiryRead(id){
-  try { await db.collection('inquiries').doc(id).update({ status: 'read' }); }
-  catch(e){ console.error(e); alert('Failed to mark read'); }
-}
-async function deleteInquiry(id){
-  if(!confirm('Delete inquiry?')) return;
-  try {
-    await db.collection('inquiries').doc(id).delete();
-    if (currentChatUnsubscribe && currentChatInquiryId===id){ currentChatUnsubscribe(); currentChatUnsubscribe=null; chatArea.style.display='none'; }
-  } catch(e){ console.error(e); alert('Failed to delete'); }
-}
-
-/* OPEN CHAT (listens to chats/{inquiryId}/messages) */
-window.openChat = function(inquiryId, tenantName){
-  if(currentChatUnsubscribe){ currentChatUnsubscribe(); currentChatUnsubscribe = null; }
-  currentChatInquiryId = inquiryId;
-  chatHeader.textContent = 'Chat with ' + tenantName;
-  chatArea.style.display = 'block';
-  messagesBox.innerHTML = '<div class="small-muted">Loading messages...</div>';
-  const msgsRef = db.collection('chats').doc(inquiryId).collection('messages').orderBy('timestamp');
-  currentChatUnsubscribe = msgsRef.onSnapshot(snap => {
-    messagesBox.innerHTML = '';
-    snap.forEach(doc => {
-      const m = doc.data();
-      const when = m.timestamp && m.timestamp.toDate ? m.timestamp.toDate().toLocaleString() : '';
-      if (m.senderType === 'tenant') {
-        messagesBox.innerHTML += `<div style="margin-bottom:8px"><div class="msg-tenant">${escapeHtml(m.text)}</div><div class="small-muted">${escapeHtml(m.senderName||'Tenant')} • ${escapeHtml(when)}</div></div>`;
-      } else {
-        messagesBox.innerHTML += `<div style="margin-bottom:8px;text-align:right"><div class="msg-landlord">${escapeHtml(m.text)}</div><div class="small-muted">${escapeHtml(when)}</div></div>`;
-      }
-    });
-    messagesBox.scrollTop = messagesBox.scrollHeight;
-  }, err => {
-    console.error('Chat subscription error', err);
-    messagesBox.innerHTML = '<div class="small-muted">Failed to load messages</div>';
-  });
-};
-
-/* Send landlord message (FIXED: correct inquiries doc update) */
-sendMsgBtn.addEventListener('click', async () => {
-  if(!currentUser) { alert('Login first'); return; }
-  if(!currentChatInquiryId) { alert('Open a chat first'); return; }
-  const text = chatInput.value.trim();
-  if(!text) return;
-  try {
-    await db.collection('chats').doc(currentChatInquiryId).collection('messages').add({
-      text,
-      senderType: 'landlord',
-      senderId: currentUser.uid,
-      senderName: currentUser.displayName || '',
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    // --- CORRECTED LINE: update inquiry status properly ---
-    await db.collection('inquiries').doc(currentChatInquiryId)
-      .update({ status: 'responded' })
-      .catch(()=>{});
-
-    chatInput.value = '';
-  } catch(e) {
-    console.error('Send failed', e);
-    alert('Failed to send message: ' + (e.message||e));
-  }
+/* ---------------- Geocode & Get location ---------------- */
+$('btnGeocode').addEventListener('click', async () => {
+  const addr = $('prop_address').value.trim();
+  if(!addr) return alert('Enter address to geocode');
+  const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(addr + ' Kenya');
+  const r = await fetch(url);
+  const data = await r.json();
+  if(data && data.length){
+    const lat=parseFloat(data[0].lat), lng=parseFloat(data[0].lon);
+    $('prop_lat').value=lat; $('prop_lng').value=lng;
+    map.setView([lat,lng],15);
+    marker.setLatLng([lat,lng]);
+  } else alert('Location not found');
 });
 
-/* small helper */
-function escapeHtml(s){
-  if(!s) return '';
-  return String(s).replace(/[&<>"'`=\/]/g, function (c) {
-    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','/':'&#47;','`':'&#96;','=':'&#61;'}[c];
-  });
-}
-
-/* cleanup */
-window.addEventListener('beforeunload', () => {
-  if (currentChatUnsubscribe) currentChatUnsubscribe();
-  if (window._inquiriesUnsub) window._inquiriesUnsub();
+$('btnGetLocation').addEventListener('click', () => {
+  if(!navigator.geolocation) return alert('Geolocation not supported');
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const lat=pos.coords.latitude, lng=pos.coords.longitude;
+    $('prop_lat').value=lat; $('prop_lng').value=lng;
+    map.setView([lat,lng],15);
+    marker.setLatLng([lat,lng]);
+  }, err=>alert('Failed to get location: '+err.message), {enableHighAccuracy:true});
 });
 </script>
 </body>
